@@ -135,3 +135,19 @@ func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid interface{},
 
 	return s.client.Do(req, nil)
 }
+
+func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid interface{}, checkID int, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+
+	u := fmt.Sprintf("projects/%s/external_status_checks/%d", PathEscape(project), checkID)
+
+	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}

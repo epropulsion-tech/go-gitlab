@@ -88,3 +88,28 @@ func (s *ExternalStatusChecksService) ListProjectStatusChecks(pid interface{}, o
 
 	return pscs, resp, err
 }
+
+type SetExternalStatusCheckStatusOptions struct {
+	SHA                   *string `url:"sha" json:"sha"`
+	ExternalStatusCheckID *int    `url:"external_status_check_id" json:"external_status_check_id"`
+	Status                *string `url:"status,omitempty" json:"status,omitempty"`
+}
+
+// SetExternalStatusCheckStatus set status of an external status check
+//
+// Gitlab API docs:
+// https://docs.gitlab.com/ee/api/status_checks.html#set-status-of-an-external-status-check
+func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid interface{}, mergeRequestIID int, opt *SetExternalStatusCheckStatusOptions, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+	u := fmt.Sprintf("projects/%s/merge_requests/%d/status_check_responses", PathEscape(project), mergeRequestIID)
+
+	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}

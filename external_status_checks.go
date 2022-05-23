@@ -151,3 +151,25 @@ func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid interface{},
 
 	return s.client.Do(req, nil)
 }
+
+type UpdateExternalStatusCheckOptions struct {
+	Name               *string `url:"name,omitempty" json:"name,omitempty"`
+	ExternalUrl        *string `url:"external_url,omitempty" json:"external_url,omitempty"`
+	ProtectedBranchIDs *[]int  `url:"protected_branch_ids,omitempty" json:"protected_branch_ids,omitempty"`
+}
+
+func (s *ExternalStatusChecksService) UpdateExternalStatusCheck(pid interface{}, checkID int, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+
+	u := fmt.Sprintf("projects/%s/external_status_checks/%d", PathEscape(project), checkID)
+
+	req, err := s.client.NewRequest(http.MethodPut, u, &UpdateExternalStatusCheckOptions{}, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}

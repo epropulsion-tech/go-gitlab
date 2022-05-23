@@ -88,3 +88,99 @@ func (s *ExternalStatusChecksService) ListProjectStatusChecks(pid interface{}, o
 
 	return pscs, resp, err
 }
+
+type SetExternalStatusCheckStatusOptions struct {
+	SHA                   *string `url:"sha" json:"sha"`
+	ExternalStatusCheckID *int    `url:"external_status_check_id" json:"external_status_check_id"`
+	Status                *string `url:"status,omitempty" json:"status,omitempty"`
+}
+
+// SetExternalStatusCheckStatus set status of an external status check
+//
+// Gitlab API docs:
+// https://docs.gitlab.com/ee/api/status_checks.html#set-status-of-an-external-status-check
+func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid interface{}, mergeRequestIID int, opt *SetExternalStatusCheckStatusOptions, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+	u := fmt.Sprintf("projects/%s/merge_requests/%d/status_check_responses", PathEscape(project), mergeRequestIID)
+
+	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}
+
+type CreateExternalStatusCheck struct {
+	Name               *string `url:"name" json:"name"`
+	ExternalURL        *string `url:"external_url" json:"external_url"`
+	ProtectedBranchIDs *[]int  `url:"protected_branch_ids,omitempty" json:"protected_branch_ids,omitempty"`
+}
+
+// CreateExternalStatusCheck create external status check
+//
+// Gitlab API docs:
+// https://docs.gitlab.com/ee/api/status_checks.html#create-external-status-check
+func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid interface{}, opt *CreateExternalStatusCheck, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+	u := fmt.Sprintf("projects/%s/external_status_checks", PathEscape(project))
+
+	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}
+
+// DeleteExternalStatusCheck delete external status check
+//
+// Gitlab API docs:
+// https://docs.gitlab.com/ee/api/status_checks.html#delete-external-status-check
+func (s *ExternalStatusChecksService) DeleteExternalStatusCheck(pid interface{}, checkID int, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+
+	u := fmt.Sprintf("projects/%s/external_status_checks/%d", PathEscape(project), checkID)
+
+	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}
+
+type UpdateExternalStatusCheckOptions struct {
+	Name               *string `url:"name,omitempty" json:"name,omitempty"`
+	ExternalURL        *string `url:"external_url,omitempty" json:"external_url,omitempty"`
+	ProtectedBranchIDs *[]int  `url:"protected_branch_ids,omitempty" json:"protected_branch_ids,omitempty"`
+}
+
+// UpdateExternalStatusCheck update external status check
+//
+// Gitlab API docs:
+// https://docs.gitlab.com/ee/api/status_checks.html#update-external-status-check
+func (s *ExternalStatusChecksService) UpdateExternalStatusCheck(pid interface{}, checkID int, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+
+	u := fmt.Sprintf("projects/%s/external_status_checks/%d", PathEscape(project), checkID)
+
+	req, err := s.client.NewRequest(http.MethodPut, u, &UpdateExternalStatusCheckOptions{}, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}

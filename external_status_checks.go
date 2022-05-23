@@ -113,3 +113,25 @@ func (s *ExternalStatusChecksService) SetExternalStatusCheckStatus(pid interface
 
 	return s.client.Do(req, nil)
 }
+
+type CreateExternalStatusCheck struct {
+	ID                 *int    `url:"id" json:"id"`
+	Name               *string `url:"name" json:"name"`
+	ExternalUrl        *string `url:"external_url" json:"external_url"`
+	ProtectedBranchIDs *[]int  `url:"protected_branch_ids,omitempty" json:"protected_branch_ids,omitempty"`
+}
+
+func (s *ExternalStatusChecksService) CreateExternalStatusCheck(pid interface{}, opt *CreateExternalStatusCheck, options ...RequestOptionFunc) (*Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, err
+	}
+	u := fmt.Sprintf("projects/%s/external_status_checks", PathEscape(project))
+
+	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}
